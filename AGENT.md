@@ -18,6 +18,13 @@ Baca file berikut:
    kerjakan beberapa task sekaligus.
 4. Setelah task selesai (test + lint jalan), centang `[x]` di PLANNING.md.
 
+## Aturan mulai & berhenti kerja (PENTING, sering salah)
+
+1. **Membuat issue ≠ mengerjakan issue.** Kalau user hanya minta "buat github issue", berhenti SETELAH issue dibuat. JANGAN lanjut eksekusi.
+2. **Mulai menulis kode HANYA setelah user memerintah eksplisit**, contoh: "eksekusi", "kerjakan", "lanjut".
+3. **Setiap tahap selesai → berhenti dan lapor singkat.** Jangan melanjutkan ke tahap berikutnya (commit, centang PLANNING, close issue, task berikutnya) tanpa perintah user.
+4. **Sebelum mulai bekerja, baca ulang pesan terakhir user.** Kalau ragu apa yang diminta, tanya dulu — jangan asumsikan "sekaligus kerjakan".
+
 ## Aturan khusus frontend
 
 1. Spesifikasi halaman/komponen: PRD §J. State management: PRD §K.
