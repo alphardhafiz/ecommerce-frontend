@@ -3,7 +3,7 @@
 Pecahan task per fase mengikuti PRD §U (Development Roadmap) dan PRD §J (halaman). Sumber kebenaran: [`../docs/PRD.md`](../docs/PRD.md) + [`../docs/AGENTS.md`](../docs/AGENTS.md).
 
 **Cara pakai:**
-- Kerjakan berurutan per fase. Jangan mulai fase berikutnya sebelum DoD fase sekarang terpenuhi.
+- Kerjakan berurutan per task. Jangan mulai fase berikutnya sebelum DoD fase sekarang terpenuhi.
 - Satu saat = satu task. Centang `[x]` hanya setelah task selesai (lint/test jalan).
 - Fase N client bergantung pada fase N server yang sudah selesai (misal halaman login butuh `/auth/login` jalan).
 - Fase 8 (Redis) murni backend — tidak ada task client.
