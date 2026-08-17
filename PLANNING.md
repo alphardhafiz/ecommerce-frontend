@@ -14,9 +14,9 @@ Pecahan task per fase mengikuti PRD §U (Development Roadmap) dan PRD §J (halam
 - [x] Install deps: TanStack Query, React Hook Form, Zod
 - [x] API client (fetch wrapper): base URL env, attach Bearer token, parse format error PRD §L
 - [x] Layout dasar, UI primitives, komponen Toast, error/loading/empty state umum
-- [ ] Test: app jalan, API client bisa hit `/health`
+- [x] Test: app jalan, API client bisa hit `/health`
 
-**DoD:** frontend jalan, siap dikembangkan halaman.
+**DoD:** frontend jalan, siap dikembangkan halaman. ✅ (verifikasi 2026-08-18: frontend HTTP 200, `npm run smoke` → `OK /health {"status":"ok"}`)
 
 ## Fase 2 — Authentication (butuh server fase 2)
 
