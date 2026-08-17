@@ -18,6 +18,8 @@ Baca file berikut:
 3. Kerjakan **SATU task saja** per sesi kerja. Jangan lompat fase, jangan
    kerjakan beberapa task sekaligus.
 4. Setelah task selesai (test + lint jalan), centang `[x]` di PLANNING.md.
+5. Untuk task baru: buat GitHub issue dulu (lihat aturan issue di bawah)
+   sebelum mengerjakan.
 
 ## Aturan mulai & berhenti kerja (PENTING, sering salah)
 
@@ -58,17 +60,27 @@ Baca file berikut:
 | Lint | `npm run lint` |
 | Test | `npm test` |
 
-## Aturan pembuatan GitHub issue
+## Aturan GitHub issue
 
-Jika diminta membuat GitHub issue untuk suatu task:
+Saat user minta dibuatkan GitHub issue untuk sebuah task:
 
-- Tulis secara **high level**, jangan detail/low level.
-- Target pembaca: junior programmer / AI model murah. Detail implementasi
-  dibiarkan sebagai keputusan mereka.
+1. Buat planning HIGH LEVEL saja. Jangan tulis detail low-level (nama class,
+   nama file, langkah teknis rinci).
+2. Format issue: konteks singkat, tujuan, pointer ke bagian PRD sebagai
+   sumber kebenaran, dan acceptance criteria.
+3. Alasan: yang mengerjakan issue adalah junior programmer atau AI model
+   murah. Mereka harus belajar dari PRD, bukan menerima jawaban jadi.
 
 ## Aturan commit
 
-- **JANGAN** commit, push, atau buat PR sebelum user review.
-- Tampilkan `git diff` / ringkasan perubahan, lalu TUNGGU persetujuan eksplisit.
-- Commit dalam bahasa Inggris, mengikuti commit convention global.
-- Tandai task yang selesai di PLANNING.md.
+1. **JANGAN commit, push, atau buat PR sebelum user review** dan mendapat
+   persetujuan eksplisit. Tampilkan `git diff`/ringkasan perubahan dulu.
+2. **Checkpoint wajib di akhir setiap task** (selalu lakukan, tanpa kecuali):
+   1. Jalankan `git status` + `git diff --stat`, tampilkan ringkasan ke user.
+   2. Tanya: "Commit + push + close issue?" — lalu **BERHENTI**.
+   3. TIDAK boleh lanjut ke perintah `git commit`/`git push`/`gh issue close`
+      sampai user menjawab setuju secara eksplisit.
+3. Pesan commit dalam bahasa Inggris, deskriptif, mengikuti conventional
+   commits (contoh: `feat:`, `fix:`, `chore:`, `docs:`).
+4. Setiap task selesai → tandai `[x]` di PLANNING.md sebelum atau bersama
+   commit.
