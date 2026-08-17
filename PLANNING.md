@@ -13,7 +13,7 @@ Pecahan task per fase mengikuti PRD §U (Development Roadmap) dan PRD §J (halam
 - [x] Init Next.js (App Router, TypeScript, ESLint)
 - [x] Install deps: TanStack Query, React Hook Form, Zod
 - [x] API client (fetch wrapper): base URL env, attach Bearer token, parse format error PRD §L
-- [ ] Layout dasar, UI primitives, komponen Toast, error/loading/empty state umum
+- [x] Layout dasar, UI primitives, komponen Toast, error/loading/empty state umum
 - [ ] Test: app jalan, API client bisa hit `/health`
 
 **DoD:** frontend jalan, siap dikembangkan halaman.
