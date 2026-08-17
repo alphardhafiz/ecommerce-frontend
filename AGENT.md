@@ -9,6 +9,7 @@ Baca file berikut:
 
 - [`../docs/AGENTS.md`](../docs/AGENTS.md) — aturan umum & stack
 - [`../docs/PRD.md`](../docs/PRD.md) — spesifikasi produk
+- [`DESIGN.md`](DESIGN.md) — bahasa desain & visual (warna, font, komponen, signature)
 
 ## Urutan kerja (WAJIB)
 
@@ -44,6 +45,10 @@ Baca file berikut:
 6. Filter/sort/page produk disimpan di URL query string (`useSearchParams`),
    bukan di global store (PRD §K).
 7. Hindari `dangerouslySetInnerHTML` untuk data user-generated (PRD §I).
+8. **WAJIB cek [`DESIGN.md`](DESIGN.md) sebelum membuat/merubah komponen
+   visual.** Token warna/font/radius/spacing, style komponen, dan 4 signature
+   element ada di sana — jangan menebak. Baca daftar anti-pattern di DESIGN.md
+   §9 sebelum menulis CSS; pola yang ada di daftar itu DILARANG dipakai.
 
 ## Perintah standar
 
