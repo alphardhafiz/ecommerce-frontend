@@ -19,7 +19,9 @@ export class ApiError extends Error {
   }
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+// ponytail: default same-origin (diproxy next.config rewrites, lihat T1 Fase 2).
+// NEXT_PUBLIC_API_URL hanya untuk jalur non-browser (scripts/smoke.ts).
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 let getAccessToken: (() => string | null) | null = null;
 
