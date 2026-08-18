@@ -10,87 +10,52 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # AGENTS.md — Client (Next.js)
 
-Baca file ini SELALU sebelum menulis kode apa pun di repo ini.
+Baca SELALU sebelum menulis kode.
 
-## Sumber kebenaran
-
-Aturan umum, stack, gotchas, dan alur kerja fase TIDAK diduplikasi di sini.
-Baca file berikut:
-
+## Sumber kebenaran (baca, jangan duplikasi di sini)
 - [`../docs/AGENTS.md`](../docs/AGENTS.md) — aturan umum & stack
 - [`../docs/PRD.md`](../docs/PRD.md) — spesifikasi produk
-- [`DESIGN.md`](DESIGN.md) — bahasa desain & visual (warna, font, komponen, signature)
+- [`DESIGN.md`](DESIGN.md) — desain visual (warna, font, komponen, signature)
 
-## Urutan kerja (WAJIB)
+## Alur kerja
+1. Buka [`PLANNING.md`](PLANNING.md), ambil task pertama yang belum `[x]` di fase berjalan.
+2. Kerjakan **1 task/sesi**. Tidak boleh lompat fase / gabung task.
+3. Selesai (test+lint lolos) → centang `[x]`.
+4. Task baru → buat GitHub issue dulu (lihat §Issue), baru kerjakan.
 
-1. Buka [`PLANNING.md`](PLANNING.md) — ini task list berjalan.
-2. Ambil task pertama yang BELUM dicentang pada fase berjalan.
-3. Kerjakan **SATU task saja** per sesi kerja. Jangan lompat fase, jangan
-   kerjakan beberapa task sekaligus.
-4. Setelah task selesai (test + lint jalan), centang `[x]` di PLANNING.md.
-5. Untuk task baru: buat GitHub issue dulu (lihat aturan issue di bawah)
-   sebelum mengerjakan.
+## Start/stop (sering salah, WAJIB patuh)
+- Buat issue ≠ kerjakan issue. Diminta "buat issue" saja → stop setelah issue dibuat.
+- Mulai coding hanya setelah perintah eksplisit ("eksekusi"/"kerjakan"/"lanjut").
+- Tiap tahap selesai → stop, lapor singkat. Jangan lanjut ke tahap berikutnya (commit/centang/close issue/task baru) tanpa perintah user.
+- Ragu maksud user → tanya, jangan asumsi "sekaligus kerjakan".
 
-## Aturan mulai & berhenti kerja (PENTING, sering salah)
-
-1. **Membuat issue ≠ mengerjakan issue.** Kalau user hanya minta "buat github issue", berhenti SETELAH issue dibuat. JANGAN lanjut eksekusi.
-2. **Mulai menulis kode HANYA setelah user memerintah eksplisit**, contoh: "eksekusi", "kerjakan", "lanjut".
-3. **Setiap tahap selesai → berhenti dan lapor singkat.** Jangan melanjutkan ke tahap berikutnya (commit, centang PLANNING, close issue, task berikutnya) tanpa perintah user.
-4. **Sebelum mulai bekerja, baca ulang pesan terakhir user.** Kalau ragu apa yang diminta, tanya dulu — jangan asumsikan "sekaligus kerjakan".
-
-## Aturan khusus frontend
-
-1. Spesifikasi halaman/komponen: PRD §J. State management: PRD §K.
-   Format error API: PRD §L.
-2. Stack final (jangan ganti tanpa persetujuan): Next.js (App Router),
-   TanStack Query (server state), React Hook Form + Zod (form),
-   React Context (auth). Zustand/Redux HANYA jika benar-benar perlu (PRD §K).
-3. Frontend **tidak pernah** menghitung nilai finansial. Harga/total
-   selalu dari response backend (PRD §C.8, §R.3). Frontend hanya mengirim
-   ID + quantity.
-4. Access token disimpan di memory state, **bukan** localStorage. Refresh
-   token hanya di httpOnly cookie (PRD §C.1). Saat dapat `401 TOKEN_EXPIRED`:
-   silent refresh via `/auth/refresh` (dengan CSRF double-submit token),
-   lalu retry request sekali (PRD §S.14).
-5. Redirect dari Midtrans hanya untuk UX — TIDAK boleh dipakai mengubah
-   status order (PRD §C.10).
-6. Filter/sort/page produk disimpan di URL query string (`useSearchParams`),
-   bukan di global store (PRD §K).
+## Aturan frontend
+1. Spesifikasi: PRD §J (halaman/komponen), §K (state), §L (format error API).
+2. Stack tetap (jangan ganti tanpa izin): Next.js App Router, TanStack Query, RHF+Zod, React Context (auth). Zustand/Redux hanya jika perlu (PRD §K).
+3. Frontend tidak pernah hitung nilai finansial — harga/total dari backend saja (PRD §C.8, §R.3); frontend kirim ID+qty.
+4. Access token di memory state (bukan localStorage). Refresh token httpOnly cookie (PRD §C.1). `401 TOKEN_EXPIRED` → silent refresh `/auth/refresh` (CSRF double-submit) → retry sekali (PRD §S.14).
+5. Redirect Midtrans hanya UX, tidak boleh ubah status order (PRD §C.10).
+6. Filter/sort/page produk di URL query string (`useSearchParams`), bukan global store (PRD §K).
 7. Hindari `dangerouslySetInnerHTML` untuk data user-generated (PRD §I).
-8. **WAJIB cek [`DESIGN.md`](DESIGN.md) sebelum membuat/merubah komponen
-   visual.** Token warna/font/radius/spacing, style komponen, dan 4 signature
-   element ada di sana — jangan menebak. Baca daftar anti-pattern di DESIGN.md
-   §9 sebelum menulis CSS; pola yang ada di daftar itu DILARANG dipakai.
+8. Cek [`DESIGN.md`](DESIGN.md) sebelum bikin/ubah komponen visual — token warna/font/radius/spacing, style komponen, 4 signature element ada di sana. Cek anti-pattern §9 sebelum nulis CSS.
 
-## Perintah standar
-
+## Command
 | Aksi | Command |
 |---|---|
-| Jalankan dev server | `npm run dev` |
+| Dev server | `npm run dev` |
 | Lint | `npm run lint` |
 | Test | `npm test` |
 
-## Aturan GitHub issue
+## Issue
+Diminta buatkan GitHub issue:
+1. Planning high-level saja, tanpa detail teknis rinci (nama class/file/langkah).
+2. Format: konteks singkat, tujuan, pointer PRD, acceptance criteria.
 
-Saat user minta dibuatkan GitHub issue untuk sebuah task:
-
-1. Buat planning HIGH LEVEL saja. Jangan tulis detail low-level (nama class,
-   nama file, langkah teknis rinci).
-2. Format issue: konteks singkat, tujuan, pointer ke bagian PRD sebagai
-   sumber kebenaran, dan acceptance criteria.
-3. Alasan: yang mengerjakan issue adalah junior programmer atau AI model
-   murah. Mereka harus belajar dari PRD, bukan menerima jawaban jadi.
-
-## Aturan commit
-
-1. **JANGAN commit, push, atau buat PR sebelum user review** dan mendapat
-   persetujuan eksplisit. Tampilkan `git diff`/ringkasan perubahan dulu.
-2. **Checkpoint wajib di akhir setiap task** (selalu lakukan, tanpa kecuali):
-   1. Jalankan `git status` + `git diff --stat`, tampilkan ringkasan ke user.
-   2. Tanya: "Commit + push + close issue?" — lalu **BERHENTI**.
-   3. TIDAK boleh lanjut ke perintah `git commit`/`git push`/`gh issue close`
-      sampai user menjawab setuju secara eksplisit.
-3. Pesan commit dalam bahasa Inggris, deskriptif, mengikuti conventional
-   commits (contoh: `feat:`, `fix:`, `chore:`, `docs:`).
-4. Setiap task selesai → tandai `[x]` di PLANNING.md sebelum atau bersama
-   commit.
+## Commit
+1. Jangan commit/push/PR sebelum user review & approve eksplisit. Tampilkan `git diff`/ringkasan dulu.
+2. Checkpoint wajib tiap task selesai:
+   - `git status` + `git diff --stat` → ringkas ke user.
+   - Tanya "Commit + push + close issue?" → **STOP**.
+   - Tidak lanjut `git commit`/`push`/`gh issue close` sebelum user setuju eksplisit.
+3. Commit message: English, conventional commits (`feat:`, `fix:`, `chore:`, `docs:`).
+4. Task selesai → centang `[x]` di PLANNING.md sebelum/bersama commit.
