@@ -32,6 +32,18 @@ export function setTokenGetter(
   getAccessToken = getter;
 }
 
+// ponytail: cookie csrf_token Path "/" (JS-readable dari halaman mana pun),
+// server fiks Path di repo ecommerce-backend. Dibaca lalu dikirim ulang
+// sebagai header X-CSRF-Token (double-submit, PRD §C.1). Non-browser (Node)
+// tak punya document → header tak terkirim, dan tidak perlu.
+function getCsrfToken(): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+const CSRF_PATHS = ["/auth/refresh", "/auth/logout"];
+
 async function toApiError(res: Response): Promise<ApiError> {
   try {
     const body = (await res.json()) as Partial<{
@@ -57,6 +69,9 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 
   const token = getAccessToken?.();
   if (token) headers.set("Authorization", `Bearer ${token}`);
+
+  const csrf = getCsrfToken();
+  if (csrf && CSRF_PATHS.includes(path)) headers.set("X-CSRF-Token", csrf);
 
   let res: Response;
   try {

@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Skill tooling (CommonJS scripts, bukan kode aplikasi):
+    ".opencode/**",
   ]),
 ]);
 

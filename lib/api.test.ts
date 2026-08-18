@@ -104,4 +104,56 @@ describe("api client", () => {
       status: 500,
     });
   });
+
+  describe("CSRF double-submit", () => {
+    afterEach(() => {
+      document.cookie = "csrf_token=; Max-Age=0";
+    });
+
+    it("sends X-CSRF-Token from csrf_token cookie on /auth/refresh", async () => {
+      document.cookie = "csrf_token=csrf-abc";
+      mockFetchOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ success: true, data: null }),
+      });
+
+      await api.post("/auth/refresh");
+
+      const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+      expect((init.headers as Headers).get("X-CSRF-Token")).toBe("csrf-abc");
+    });
+
+    it("sends X-CSRF-Token on /auth/logout but not on other paths", async () => {
+      document.cookie = "csrf_token=csrf-abc";
+
+      mockFetchOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ success: true, data: null }),
+      });
+      await api.post("/auth/logout");
+      mockFetchOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ success: true, data: null }),
+      });
+      await api.get("/health");
+
+      const [logoutPath, logoutInit] = fetchMock.mock.calls[0] as [
+        string,
+        RequestInit,
+      ];
+      const [healthPath, healthInit] = fetchMock.mock.calls[1] as [
+        string,
+        RequestInit,
+      ];
+      expect(logoutPath).toContain("/auth/logout");
+      expect((logoutInit.headers as Headers).get("X-CSRF-Token")).toBe(
+        "csrf-abc",
+      );
+      expect(healthPath).toContain("/health");
+      expect((healthInit.headers as Headers).get("X-CSRF-Token")).toBeNull();
+    });
+  });
 });
