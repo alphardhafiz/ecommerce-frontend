@@ -23,7 +23,7 @@ Pecahan task per fase mengikuti PRD §U (Development Roadmap) dan PRD §J (halam
 - [x] Rewrites same-origin di `next.config.ts` + base URL API jadi same-origin (server tanpa CORS; CSRF double-submit butuh cookie `csrf_token` terbaca JS di origin yang sama)
 - [x] AuthContext: access token di memory, hydrate via `/auth/refresh` (CSRF double-submit) saat app load
 - [x] Handler 401 `TOKEN_EXPIRED` → silent refresh → retry request sekali
-- [ ] Halaman Login (RHF + Zod, inline error)
+- [x] Halaman Login (RHF + Zod, inline error)
 - [ ] Halaman Register
 - [ ] Halaman Forgot Password (pesan sukses selalu generic)
 - [ ] Halaman Reset Password (token dari URL, handle token expired)
