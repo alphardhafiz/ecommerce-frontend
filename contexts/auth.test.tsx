@@ -1,3 +1,4 @@
+import { StrictMode } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { AuthProvider, useAuth } from "./auth";
 import { api, setAuthCallbacks, setTokenGetter } from "@/lib/api";
@@ -68,6 +69,27 @@ describe("AuthProvider", () => {
       expect.stringContaining("/auth/refresh"),
       expect.anything(),
     );
+  });
+
+  it("fires /auth/refresh only once on StrictMode double-mount", async () => {
+    fetchMock.mockResolvedValueOnce(session() as Response);
+
+    render(
+      <StrictMode>
+        <AuthProvider>
+          <Probe />
+        </AuthProvider>
+      </StrictMode>,
+    );
+
+    await waitFor(() =>
+      expect(screen.getByTestId("status")).toHaveTextContent("authenticated"),
+    );
+
+    const refreshCalls = fetchMock.mock.calls.filter(([url]) =>
+      (url as string).includes("/auth/refresh"),
+    );
+    expect(refreshCalls).toHaveLength(1);
   });
 
   it("stays anonymous when refresh token invalid (no crash)", async () => {

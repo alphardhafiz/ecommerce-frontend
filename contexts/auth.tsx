@@ -7,7 +7,13 @@ import {
   useRef,
   useState,
 } from "react";
-import { api, setAuthCallbacks, setTokenGetter } from "@/lib/api";
+import {
+  api,
+  refreshSession,
+  setAuthCallbacks,
+  setTokenGetter,
+  type SessionData,
+} from "@/lib/api";
 
 export type AuthUser = {
   id: string;
@@ -16,12 +22,6 @@ export type AuthUser = {
 };
 
 type AuthStatus = "loading" | "authenticated" | "anonymous";
-
-type SessionData = {
-  access_token: string;
-  expires_in: number;
-  user: AuthUser;
-};
 
 type AuthContextValue = {
   user: AuthUser | null;
@@ -64,11 +64,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   // Hydrate saat app load: /auth/refresh pakai refresh token cookie (httpOnly)
-  // + CSRF double-submit (dikirim api client, lihat lib/api.ts).
+  // + CSRF double-submit. Lewat refreshSession() biar dedup: StrictMode
+  // double-mount (dev) tidak memicu 2 request yang saling membatalkan sesi
+  // (server rotasi + reuse detection).
   useEffect(() => {
     let cancelled = false;
-    api
-      .post<SessionData>("/auth/refresh")
+    refreshSession()
       .then((data) => {
         if (!cancelled) applySession(data);
       })

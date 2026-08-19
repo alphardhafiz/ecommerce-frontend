@@ -1,5 +1,11 @@
 export type ApiErrorField = { field: string; message: string };
 
+export type SessionData = {
+  access_token: string;
+  expires_in: number;
+  user: { id: string; name: string; role: string };
+};
+
 export class ApiError extends Error {
   readonly code: string;
   readonly status: number;
@@ -75,10 +81,13 @@ async function toApiError(res: Response): Promise<ApiError> {
 }
 
 // Shared promise agar beberapa request paralel yang gagal 401 TOKEN_EXPIRED
-// hanya memicu satu pemanggilan /auth/refresh (PRD §S.14).
-let refreshPromise: Promise<string> | null = null;
+// hanya memicu satu pemanggilan /auth/refresh (PRD §S.14). Dipakai juga oleh
+// AuthContext saat hydrate — StrictMode double-mount (dev) tidak boleh
+// memicu refresh 2x, karena server merotasi + reuse detection akan menolak
+// request kedua dan mematikan sesi.
+let refreshPromise: Promise<SessionData> | null = null;
 
-async function refreshSession(): Promise<string> {
+export function refreshSession(): Promise<SessionData> {
   if (!refreshPromise) {
     refreshPromise = (async () => {
       const headers = new Headers();
@@ -93,9 +102,9 @@ async function refreshSession(): Promise<string> {
       });
       if (!res.ok) throw await toApiError(res);
 
-      const body = (await res.json()) as { data: { access_token: string } };
+      const body = (await res.json()) as { data: SessionData };
       onTokenRefresh?.(body.data.access_token);
-      return body.data.access_token;
+      return body.data;
     })().finally(() => {
       refreshPromise = null;
     });
