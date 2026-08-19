@@ -24,7 +24,7 @@ Pecahan task per fase mengikuti PRD §U (Development Roadmap) dan PRD §J (halam
 - [x] AuthContext: access token di memory, hydrate via `/auth/refresh` (CSRF double-submit) saat app load
 - [x] Handler 401 `TOKEN_EXPIRED` → silent refresh → retry request sekali
 - [x] Halaman Login (RHF + Zod, inline error)
-- [ ] Halaman Register
+- [x] Halaman Register
 - [ ] Halaman Forgot Password (pesan sukses selalu generic)
 - [ ] Halaman Reset Password (token dari URL, handle token expired)
 - [ ] Route guard: redirect ke /login jika belum login; admin guard di area /admin
