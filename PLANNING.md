@@ -26,7 +26,7 @@ Pecahan task per fase mengikuti PRD §U (Development Roadmap) dan PRD §J (halam
 - [x] Halaman Login (RHF + Zod, inline error)
 - [x] Halaman Register
 - [x] Halaman Forgot Password (pesan sukses selalu generic)
-- [ ] Halaman Reset Password (token dari URL, handle token expired)
+- [x] Halaman Reset Password (token dari URL, handle token expired)
 - [ ] Route guard: redirect ke /login jika belum login; admin guard di area /admin
 - [ ] Navbar dengan state login/logout
 
