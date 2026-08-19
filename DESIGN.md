@@ -13,6 +13,8 @@ Brief awal tidak menentukan kategori produk spesifik (fashion, elektronik, dsb),
 
 Jika di kemudian hari kamu menentukan kategori produk final (misal fashion, home goods, dsb), palet & tone di bawah tetap valid — sesuaikan foto produk & copy contoh saja.
 
+**Niche produk final (dikunci): alat tulis kertas & kayu.** "Ledger & Tag" menjual alat tulis berbahan kertas & kayu — notebook jahit tangan, pensil/pena kayu, kartu letterpress, aksesoris meja kayu. Kenapa cocok: bahan produknya persis token desain (kertas = `paper`, tinta = `ink`, cap gudang = `stamp`, buku kas = `ledger`), dan nama toko menjadi produk hero alami (buku kas sungguhan dijual di katalog). Palet & tone di bawah sudah final — foto produk & copy contoh menyesuaikan niche ini.
+
 ---
 
 ## 1. Warna
@@ -176,7 +178,7 @@ Jangan tambah signature lain di luar 4 ini. Kalau ingin elemen baru, ganti salah
 
 ## 7. Imagery & Ikonografi
 
-- **Foto produk:** cahaya natural, background netral (bukan studio putih bersih generik e-commerce besar) — selaras dengan nuansa "toko/katalog" yang hangat, bukan marketplace korporat.
+- **Foto produk (niche: alat tulis kertas & kayu):** subjek = notebook jahit tangan, pensil/pena kayu, kartu letterpress, aksesoris meja kayu. Cahaya natural, background hangat netral (permukaan kayu, linen, kertas kraft) — bukan studio putih bersih generik e-commerce besar. Konsistensi material (kertas/kayu) di semua foto adalah bagian dari signature, bukan kebetulan.
 - **Hindari:** ilustrasi vektor gaya "undraw"/flat-illustration generik, foto stok yang terasa AI-generated (kulit terlalu halus, komposisi terlalu simetris, teks palsu di background).
 - **Ikon:** garis tipis (line icon, stroke 1.5px), set konsisten (misal Lucide sudah cukup — tapi kustomisasi 3–4 ikon signature seperti ikon cart berbentuk kantong belanja bersimpul, bukan trolley/cart generik).
 - **Empty state:** ilustrasi garis sederhana (bukan ilustrasi berwarna penuh), dengan copy yang mengarahkan aksi (lihat bagian 8).
@@ -186,6 +188,7 @@ Jangan tambah signature lain di luar 4 ini. Kalau ingin elemen baru, ganti salah
 ## 8. Voice & Microcopy
 
 - Aktif, langsung, tidak menjual berlebihan. Tombol bilang persis apa yang terjadi: "Tambah ke keranjang" bukan "Yuk, checkout sekarang!".
+- Nama & copy produk menyebut bahan secara konkret — material adalah narasi utama toko: "Notebook jahit tangan A5 — kertas daur ulang", "Pensil kayu set 6", bukan judul puitis kosong.
 - Nama aksi konsisten dari tombol sampai konfirmasi: tombol "Bayar Sekarang" → toast/hasil bilang "Pembayaran diproses", bukan istilah lain.
 - Error tidak minta maaf berlebihan, langsung jelaskan apa yang salah dan apa yang bisa dilakukan:
   - Buruk: *"Ups! Sepertinya ada yang salah 😢"*
