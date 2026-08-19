@@ -3,6 +3,7 @@ import { Badge } from "./badge";
 import { Button } from "./button";
 import { Card } from "./card";
 import { Input } from "./input";
+import { PasswordInput } from "./password-input";
 import { EmptyState, ErrorState, Skeleton } from "./states";
 import { ToastProvider, useToast } from "./toast";
 
@@ -24,6 +25,18 @@ describe("UI primitives", () => {
     render(<Input aria-label="Email" />);
     const input = screen.getByLabelText("Email");
     expect(input).toHaveClass("border-b");
+  });
+
+  it("toggles password visibility on peek button", () => {
+    render(<PasswordInput aria-label="Password" />);
+    const input = screen.getByLabelText("Password");
+    expect(input).toHaveAttribute("type", "password");
+
+    fireEvent.click(screen.getByRole("button", { name: "Tampilkan password" }));
+    expect(input).toHaveAttribute("type", "text");
+
+    fireEvent.click(screen.getByRole("button", { name: "Sembunyikan password" }));
+    expect(input).toHaveAttribute("type", "password");
   });
 
   it("renders rotated stamp badge", () => {
