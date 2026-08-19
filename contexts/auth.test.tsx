@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { AuthProvider, useAuth } from "./auth";
-import { setTokenGetter } from "@/lib/api";
+import { api, setAuthCallbacks, setTokenGetter } from "@/lib/api";
 
 const fetchMock = jest.fn();
 
@@ -28,6 +28,9 @@ function Probe() {
       <span data-testid="user">{user ? user.name : "none"}</span>
       <button onClick={() => login("a@b.com", "Test1234")}>login</button>
       <button onClick={() => logout()}>logout</button>
+      <button onClick={() => api.get("/orders").catch(() => {})}>
+        callApi
+      </button>
     </div>
   );
 }
@@ -45,6 +48,7 @@ describe("AuthProvider", () => {
     fetchMock.mockReset();
     global.fetch = fetchMock as unknown as typeof fetch;
     setTokenGetter(null);
+    setAuthCallbacks({});
   });
 
   it("hydrates session via /auth/refresh when refresh token valid", async () => {
@@ -120,5 +124,30 @@ describe("AuthProvider", () => {
     await waitFor(() => expect(screen.getByTestId("user")).toHaveTextContent("none"));
     expect(screen.getByTestId("status")).toHaveTextContent("anonymous");
     expect(fetchMock.mock.calls[2][0]).toContain("/auth/logout");
+  });
+
+  it("goes anonymous when silent refresh fails after 401 TOKEN_EXPIRED", async () => {
+    fetchMock.mockResolvedValueOnce(errorResponse(401, "INVALID_REFRESH_TOKEN") as Response); // hydrate
+    fetchMock.mockResolvedValueOnce(session() as Response); // login
+    fetchMock.mockResolvedValueOnce(errorResponse(401, "TOKEN_EXPIRED") as Response); // api.get /orders
+    fetchMock.mockResolvedValueOnce(errorResponse(401, "INVALID_REFRESH_TOKEN") as Response); // refresh gagal
+
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("status")).toHaveTextContent("anonymous"),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "login" }));
+    await waitFor(() => expect(screen.getByTestId("user")).toHaveTextContent("Budi"));
+
+    fireEvent.click(screen.getByRole("button", { name: "callApi" }));
+    await waitFor(() =>
+      expect(screen.getByTestId("status")).toHaveTextContent("anonymous"),
+    );
+    expect(screen.getByTestId("user")).toHaveTextContent("none");
   });
 });

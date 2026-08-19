@@ -1,4 +1,4 @@
-import { api, setTokenGetter } from "./api";
+import { api, setAuthCallbacks, setTokenGetter } from "./api";
 
 const fetchMock = jest.fn();
 
@@ -6,11 +6,33 @@ function mockFetchOnce(response: Partial<Response>) {
   fetchMock.mockResolvedValueOnce(response as Response);
 }
 
+function errorResponse(status: number, code: string) {
+  return {
+    ok: false,
+    status,
+    json: async () => ({
+      success: false,
+      message: "Error",
+      code,
+      errors: [],
+    }),
+  };
+}
+
+function dataResponse(data: unknown) {
+  return {
+    ok: true,
+    status: 200,
+    json: async () => ({ success: true, data, meta: null }),
+  };
+}
+
 describe("api client", () => {
   beforeEach(() => {
     fetchMock.mockReset();
     global.fetch = fetchMock as unknown as typeof fetch;
     setTokenGetter(null);
+    setAuthCallbacks({});
   });
 
   it("returns data from /health on success", async () => {
@@ -154,6 +176,93 @@ describe("api client", () => {
       );
       expect(healthPath).toContain("/health");
       expect((healthInit.headers as Headers).get("X-CSRF-Token")).toBeNull();
+    });
+  });
+
+  describe("401 TOKEN_EXPIRED silent refresh", () => {
+    function refreshOk(token: string) {
+      return dataResponse({
+        access_token: token,
+        expires_in: 900,
+        user: { id: "1", name: "B", role: "user" },
+      });
+    }
+
+    it("silently refreshes token and retries once with new token", async () => {
+      let currentToken: string | null = "old-token";
+      setTokenGetter(() => currentToken);
+      const onTokenRefresh = jest.fn((token: string) => {
+        currentToken = token;
+      });
+      setAuthCallbacks({ onTokenRefresh });
+
+      mockFetchOnce(errorResponse(401, "TOKEN_EXPIRED")); // /products
+      mockFetchOnce(refreshOk("new-token")); // /auth/refresh
+      mockFetchOnce(dataResponse({ id: 1 })); // /products retry
+
+      await expect(api.get<{ id: number }>("/products")).resolves.toEqual({
+        id: 1,
+      });
+
+      const paths = fetchMock.mock.calls.map(([url]) => url as string);
+      expect(paths[0]).toContain("/products");
+      expect(paths[1]).toContain("/auth/refresh");
+      expect(paths[2]).toContain("/products");
+      expect(onTokenRefresh).toHaveBeenCalledWith("new-token");
+
+      const retryInit = fetchMock.mock.calls[2][1] as RequestInit;
+      expect((retryInit.headers as Headers).get("Authorization")).toBe(
+        "Bearer new-token",
+      );
+    });
+
+    it("calls onAuthExpired and throws original error when refresh fails", async () => {
+      setTokenGetter(() => "old-token");
+      const onAuthExpired = jest.fn();
+      setAuthCallbacks({ onAuthExpired });
+
+      mockFetchOnce(errorResponse(401, "TOKEN_EXPIRED")); // /products
+      mockFetchOnce(errorResponse(401, "INVALID_REFRESH_TOKEN")); // refresh gagal
+
+      await expect(api.get("/products")).rejects.toMatchObject({
+        code: "TOKEN_EXPIRED",
+        status: 401,
+      });
+
+      expect(onAuthExpired).toHaveBeenCalled();
+      expect(fetchMock).toHaveBeenCalledTimes(2); // produk + refresh, tanpa retry
+    });
+
+    it("refreshes only once for parallel 401 TOKEN_EXPIRED requests", async () => {
+      setTokenGetter(() => "old-token");
+      setAuthCallbacks({});
+
+      mockFetchOnce(errorResponse(401, "TOKEN_EXPIRED")); // /products
+      mockFetchOnce(errorResponse(401, "TOKEN_EXPIRED")); // /cart
+      mockFetchOnce(refreshOk("new-token"));
+      mockFetchOnce(dataResponse({ id: 1 }));
+      mockFetchOnce(dataResponse({ id: 2 }));
+
+      await expect(
+        Promise.all([api.get("/products"), api.get("/cart")]),
+      ).resolves.toBeDefined();
+
+      const refreshCalls = fetchMock.mock.calls.filter(([url]) =>
+        (url as string).includes("/auth/refresh"),
+      );
+      expect(refreshCalls).toHaveLength(1);
+    });
+
+    it("does not refresh for non-TOKEN_EXPIRED 401", async () => {
+      setTokenGetter(() => "old-token");
+      setAuthCallbacks({});
+
+      mockFetchOnce(errorResponse(401, "INVALID_CREDENTIALS"));
+
+      await expect(api.get("/orders")).rejects.toMatchObject({
+        code: "INVALID_CREDENTIALS",
+      });
+      expect(fetchMock).toHaveBeenCalledTimes(1);
     });
   });
 });

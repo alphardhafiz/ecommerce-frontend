@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { api, setTokenGetter } from "@/lib/api";
+import { api, setAuthCallbacks, setTokenGetter } from "@/lib/api";
 
 export type AuthUser = {
   id: string;
@@ -38,9 +38,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const tokenRef = useRef<string | null>(null);
 
   // Access token hanya di memory (PRD §C.1): getter dibaca api client per request.
+  // Callback: silent refresh memperbarui token di memory; refresh gagal → anonim.
   useEffect(() => {
     setTokenGetter(() => tokenRef.current);
-    return () => setTokenGetter(null);
+    setAuthCallbacks({
+      onTokenRefresh: (token) => {
+        tokenRef.current = token;
+      },
+      onAuthExpired: () => {
+        tokenRef.current = null;
+        setUser(null);
+        setStatus("anonymous");
+      },
+    });
+    return () => {
+      setTokenGetter(null);
+      setAuthCallbacks({});
+    };
   }, []);
 
   function applySession(data: SessionData) {

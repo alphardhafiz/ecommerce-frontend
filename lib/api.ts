@@ -24,12 +24,24 @@ export class ApiError extends Error {
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 let getAccessToken: (() => string | null) | null = null;
+let onTokenRefresh: ((token: string) => void) | null = null;
+let onAuthExpired: (() => void) | null = null;
 
 // ponytail: AuthContext (Fase 2) registers the memory access token here via setTokenGetter.
 export function setTokenGetter(
   getter: (() => string | null) | null,
 ): void {
   getAccessToken = getter;
+}
+
+// AuthContext mendaftarkan callback agar api client bisa memberitahu saat
+// access token diperbarui (silent refresh) atau sesi mati (refresh gagal).
+export function setAuthCallbacks(callbacks: {
+  onTokenRefresh?: (token: string) => void;
+  onAuthExpired?: () => void;
+}): void {
+  onTokenRefresh = callbacks.onTokenRefresh ?? null;
+  onAuthExpired = callbacks.onAuthExpired ?? null;
 }
 
 // ponytail: cookie csrf_token Path "/" (JS-readable dari halaman mana pun),
@@ -62,7 +74,40 @@ async function toApiError(res: Response): Promise<ApiError> {
   }
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+// Shared promise agar beberapa request paralel yang gagal 401 TOKEN_EXPIRED
+// hanya memicu satu pemanggilan /auth/refresh (PRD §S.14).
+let refreshPromise: Promise<string> | null = null;
+
+async function refreshSession(): Promise<string> {
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      const headers = new Headers();
+      headers.set("Accept", "application/json");
+      const csrf = getCsrfToken();
+      if (csrf) headers.set("X-CSRF-Token", csrf);
+
+      const res = await fetch(`${BASE_URL}/auth/refresh`, {
+        method: "POST",
+        headers,
+        credentials: "include",
+      });
+      if (!res.ok) throw await toApiError(res);
+
+      const body = (await res.json()) as { data: { access_token: string } };
+      onTokenRefresh?.(body.data.access_token);
+      return body.data.access_token;
+    })().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
+}
+
+async function request<T>(
+  path: string,
+  init: RequestInit = {},
+  retried = false,
+): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set("Accept", "application/json");
   if (init.body) headers.set("Content-Type", "application/json");
@@ -86,6 +131,23 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
       "NETWORK_ERROR",
       0,
     );
+  }
+
+  if (res.status === 401) {
+    const err = await toApiError(res);
+    if (err.code === "TOKEN_EXPIRED" && !retried) {
+      try {
+        await refreshSession();
+      } catch {
+        // Refresh gagal → sesi mati; serahkan ke AuthContext. Tetap lempar
+        // error request asal, bukan error refresh.
+        onAuthExpired?.();
+        throw err;
+      }
+      // Retry sekali dengan access token baru (header Authorization di-refresh).
+      return request<T>(path, init, true);
+    }
+    throw err;
   }
 
   if (!res.ok) {
